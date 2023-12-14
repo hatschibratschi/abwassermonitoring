@@ -4,17 +4,18 @@
 # Define server logic required to draw a histogram
 function(input, output, session) {
 
-    output$distPlot <- renderPlot({
+    output$distPlot <- renderPlotly({
 
-        # generate bins based on input$bins from ui.R
-        x    <- faithful[, 2]
-        bins <- seq(min(x), max(x), length.out = input$bins + 1)
-
-        # draw the histogram with the specified number of bins
-        hist(x, breaks = bins, col = 'darkgray', border = 'white',
-             xlab = 'Waiting time to next eruption (in mins)',
-             main = 'Histogram of waiting times')
-
+      ggplotly(
+        ggplot(dataPlot, aes(Datum, value, colour = variable)) +
+          geom_line() +
+          scale_color_manual(values=c("orange", "royalblue1")) +
+          theme(axis.title.x = element_blank(),
+                axis.title.y = element_blank(), 
+                axis.text.y=element_blank(),
+                axis.ticks.y=element_blank(),
+                legend.title = element_blank()
+          )
+      )
     })
-
 }

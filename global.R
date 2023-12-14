@@ -2,16 +2,23 @@
 library(shiny)
 library(data.table)
 library(ggplot2)
+library(plotly)
+
+# vars --------------------------------------------------------------------
+dataFile = 'data/data.csv'
 
 # load data ---------------------------------------------------------------
-# init load data
-if(FALSE){
+# if file is one day old
+if(!file.exists(dataFile) ||
+  as.Date(file.info()$ctime) < Sys.Date()){
+  print('download new data')
   download.file(url = "https://abwassermonitoring.at/cbe1/dl_natmon_01.csv"
-                , destfile = 'data/data.csv')
+                , destfile = dataFile)
 }
 
-dataRaw = fread('data/data.csv')
-# tidy data
+dataRaw = fread(dataFile)
+
+# tidy data ---------------------------------------------------------------
 scale = 10000
 data = dataRaw[,.(  Datum = as.Date(Datum)
                     , Humansignal = `gemittelte kumulierte Faelle der letzten 7 Tage aus den Humantestungen`
@@ -22,24 +29,3 @@ dataPlot = melt(data = data
      , variable.name = 'variable'
      , value.name = 'value'
      )
-
-ggplot(data = data, aes(x=Datum)) +
-  geom_line( aes(y=Abwassersignal/scale), color = 'orange') + 
-  geom_line( aes(y=Humansignal), color = 'blue') +
-  scale_y_continuous(
-    "Abwassersignal", 
-    sec.axis = sec_axis(~ . * scale, name = "Humansignal")
-  ) +
-  theme(axis.text.y=element_blank(),  #remove y axis labels
-        axis.ticks.y=element_blank()  #remove y axis ticks
-  )
-
-ggplot(dataPlot, aes(Datum, value, colour = variable)) +
-  geom_line() +
-  theme(axis.title.y = element_blank(), 
-        axis.text.y=element_blank(),  #remove y axis labels
-        axis.ticks.y=element_blank(),  #remove y axis ticks
-        legend.title = element_blank()
-  )
-
-
