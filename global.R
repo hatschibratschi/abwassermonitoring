@@ -10,7 +10,7 @@ dataFile = 'data/data.csv'
 # load data ---------------------------------------------------------------
 # if file is one day old
 if(!file.exists(dataFile) ||
-  as.Date(file.info()$ctime) < Sys.Date()){
+  as.Date(file.info(dataFile)$ctime) < Sys.Date()){
   print('download new data')
   download.file(url = "https://abwassermonitoring.at/cbe1/dl_natmon_01.csv"
                 , destfile = dataFile)
